@@ -231,11 +231,24 @@ def get_page_info(path, app, start, basepath=None, app_path=None, fname=None):
 
 def setup_source(page_info):
 	'''Get the HTML source of the template'''
+	from frontmatter import Frontmatter
+
 	jenv = frappe.get_jenv()
 	source = jenv.loader.get_source(jenv, page_info.template)[0]
 	html = ''
 
 	if page_info.template.endswith('.md'):
+		# extract frontmatter block if exists
+		try:
+			# values will be used to update page_info
+			res = Frontmatter.read(source)
+			if res['attributes']:
+				page_info.update(res['attributes'])
+				source = res['body']
+		except Exception as e:
+			print('Error parsing ' + page_info.template)
+			print(e)
+
 		source = frappe.utils.md_to_html(source)
 
 		if not page_info.show_sidebar:
