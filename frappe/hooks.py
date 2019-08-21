@@ -147,7 +147,6 @@ scheduler_events = {
 		"frappe.oauth.delete_oauth2_data",
 		"frappe.integrations.doctype.razorpay_settings.razorpay_settings.capture_payment",
 		"frappe.twofactor.delete_all_barcodes_for_users",
-		"frappe.integrations.doctype.gcalendar_settings.gcalendar_settings.sync",
 		"frappe.website.doctype.web_page.web_page.check_publish_status",
 		'frappe.utils.global_search.sync_global_search'
 	],
@@ -158,6 +157,7 @@ scheduler_events = {
 		"frappe.desk.page.backups.backups.delete_downloadable_backups",
 		"frappe.deferred_insert.save_to_db",
 		"frappe.desk.form.document_follow.send_hourly_updates",
+		"frappe.integrations.doctype.google_calendar.google_calendar.sync"
 	],
 	"daily": [
 		"frappe.email.queue.clear_outbox",
@@ -280,7 +280,7 @@ user_privacy_documents = [
 		'doctype': 'User',
 		'match_field': 'name',
 		'personal_fields': ['email', 'username', 'first_name', 'middle_name', 'last_name', 'full_name', 'birth_date',
-			'user_image', 'phone', 'mobile_no', 'location', 'banner_image', 'interest', 'bio', 'email_signature', 'background_image'],
+			'user_image', 'phone', 'mobile_no', 'location', 'banner_image', 'interest', 'bio', 'email_signature'],
 		'applies_to_website_user': 1
 	},
 
