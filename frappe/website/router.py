@@ -289,7 +289,7 @@ def extend_from_base_template(page_info, source):
 	'''
 
 	if (('</body>' not in source) and ('{% block' not in source)
-		and ('<!-- base_template:' not in source)) and 'base_template' not in page_info:
+		and ('<!-- base_template:' not in source)):
 		page_info.only_content = True
 		source = '''{% extends "templates/web.html" %}
 			{% block page_content %}\n''' + source + '\n{% endblock %}'
@@ -310,13 +310,16 @@ def load_properties_from_source(page_info):
 	if not page_info.title:
 		page_info.title = extract_title(page_info.source, page_info.route)
 
-	base_template = extract_comment_tag(page_info.source, 'base_template')
-	if base_template:
-		page_info.base_template = base_template
+	custom_base_template = extract_comment_tag(page_info.source, 'base_template')
 
-	if page_info.base_template:
+	page_info.meta_tags = frappe._dict()
+
+	page_info.meta_tags.name = extract_comment_tag(page_info.source, 'meta:name')
+	page_info.meta_tags.description = extract_comment_tag(page_info.source, 'meta:description')
+
+	if custom_base_template:
 		page_info.source = '''{{% extends "{0}" %}}
-			{{% block page_content %}}{1}{{% endblock %}}'''.format(page_info.base_template, page_info.source)
+			{{% block page_content %}}{1}{{% endblock %}}'''.format(custom_base_template, page_info.source)
 		page_info.no_cache = 1
 
 	if "<!-- no-breadcrumbs -->" in page_info.source:
