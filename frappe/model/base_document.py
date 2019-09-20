@@ -30,6 +30,7 @@ def get_controller(doctype):
 
 	:param doctype: DocType name as string."""
 	from frappe.model.document import Document
+	from frappe.utils.nestedset import NestedSet
 	global _classes
 
 	if not doctype in _classes:
@@ -37,7 +38,11 @@ def get_controller(doctype):
 			or ["Core", False]
 
 		if custom:
-			_class = Document
+			if frappe.db.field_exists(doctype, "is_tree"):
+				is_tree = frappe.db.get_value("DocType", doctype, ("is_tree"), cache=True)
+			else:
+				is_tree = False
+			_class = NestedSet if is_tree else Document
 		else:
 			module = load_doctype_module(doctype, module_name)
 			classname = doctype.replace(" ", "").replace("-", "")
@@ -175,10 +180,11 @@ class BaseDocument(object):
 		if not self.doctype:
 			return value
 		if not isinstance(value, BaseDocument):
-			if "doctype" not in value:
+			if "doctype" not in value or value['doctype'] is None:
 				value["doctype"] = self.get_table_field_doctype(key)
 				if not value["doctype"]:
 					raise AttributeError(key)
+
 			value = get_controller(value["doctype"])(value)
 			value.init_valid_columns()
 
@@ -209,11 +215,7 @@ class BaseDocument(object):
 			df = self.meta.get_field(fieldname)
 			if df:
 				if df.fieldtype=="Check":
-					if d[fieldname]==None:
-						d[fieldname] = 0
-
-					elif (not isinstance(d[fieldname], int) or d[fieldname] > 1):
-						d[fieldname] = 1 if cint(d[fieldname]) else 0
+					d[fieldname] = 1 if cint(d[fieldname]) else 0
 
 				elif df.fieldtype=="Int" and not isinstance(d[fieldname], int):
 					d[fieldname] = cint(d[fieldname])

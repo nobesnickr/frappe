@@ -120,14 +120,16 @@ frappe.ui.form.Form = class FrappeForm {
 			shortcut: 'shift+>',
 			action: () => this.navigate_records(0),
 			page: this.page,
-			description: __('Go to next record')
+			description: __('Go to next record'),
+			condition: () => !this.is_new()
 		});
 
 		frappe.ui.keys.add_shortcut({
 			shortcut: 'shift+<',
 			action: () => this.navigate_records(1),
 			page: this.page,
-			description: __('Go to previous record')
+			description: __('Go to previous record'),
+			condition: () => !this.is_new()
 		});
 	}
 
@@ -554,7 +556,10 @@ frappe.ui.form.Form = class FrappeForm {
 			resolve();
 		};
 
-		var fail = () => {
+		var fail = (e) => {
+			if (e) {
+				console.error(e)
+			}
 			btn && $(btn).prop("disabled", false);
 			if(on_error) {
 				on_error();
@@ -642,8 +647,8 @@ frappe.ui.form.Form = class FrappeForm {
 	}
 
 	amend_doc() {
-		if(!this.fields_dict['amended_from']) {
-			alert('"amended_from" field must be present to do an amendment.');
+		if (!this.fields_dict['amended_from']) {
+			frappe.msgprint(__('"amended_from" field must be present to do an amendment.'));
 			return;
 		}
 		this.validate_form_action("Amend");
@@ -837,7 +842,7 @@ frappe.ui.form.Form = class FrappeForm {
 	}
 
 	rename_doc() {
-		frappe.model.rename_doc(this.doctype, this.docname);
+		frappe.model.rename_doc(this.doctype, this.docname, () => this.refresh_header());
 	}
 
 	share_doc() {
@@ -1222,7 +1227,7 @@ frappe.ui.form.Form = class FrappeForm {
 		var docperms = frappe.perm.get_perm(this.doc.doctype);
 		for (var i=0, l=docperms.length; i<l; i++) {
 			var p = docperms[i];
-			perm[p.permlevel || 0] = {read:1, print:1, cancel:1};
+			perm[p.permlevel || 0] = {read:1, print:1, cancel:1, email:1};
 		}
 		this.perm = perm;
 	}

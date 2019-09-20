@@ -2,6 +2,8 @@
 // MIT License. See license.txt
 /* eslint-disable no-console */
 
+// __('Modules') __('Domains') __('Places') __('Administration') # for translation, don't remove
+
 frappe.start_app = function() {
 	if(!frappe.Application)
 		return;
@@ -128,6 +130,23 @@ frappe.Application = Class.extend({
 			}
 		}
 		this.link_preview = new frappe.ui.LinkPreview();
+
+		if (!frappe.boot.developer_mode) {
+			setInterval(function() {
+				frappe.call({
+					method: 'frappe.core.page.background_jobs.background_jobs.get_scheduler_status',
+					callback: function(r) {
+						if (r.message[0] == __("Inactive")) {
+							frappe.msgprint({
+								title: __("Scheduler Inactive"),
+								indicator: "red",
+								message: __("Background jobs are not running. Please contact Administrator")
+							});
+						}
+					}
+				});
+			}, 300000); // check every 5 minutes
+		}
 	},
 
 	setup_frappe_vue() {
@@ -464,6 +483,11 @@ frappe.Application = Class.extend({
 		return frappe.call('frappe.client.get_hooks', { hook: 'app_logo_url' })
 			.then(r => {
 				frappe.app.logo_url = (r.message || []).slice(-1)[0];
+				if (window.cordova) {
+					let host = frappe.request.url;
+					host = host.slice(0, host.length - 1);
+					frappe.app.logo_url = host + frappe.app.logo_url;
+				}
 			});
 	},
 

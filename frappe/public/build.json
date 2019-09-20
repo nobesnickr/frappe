@@ -1,16 +1,5 @@
 {
-	"css/frappe-web.css": [
-		"public/css/font-awesome.css",
-		"public/css/octicons/octicons.css",
-		"public/less/website.less",
-		"public/less/avatar.less",
-		"node_modules/highlight.js/styles/zenburn.css",
-		"public/less/form.less",
-		"public/less/chat.less",
-		"node_modules/frappe-datatable/dist/frappe-datatable.css"
-	],
 	"css/frappe-web-b4.css": [
-		"public/css/font-awesome.css",
 		"public/less/indicator.less",
 		"public/scss/website.scss"
 	],
@@ -36,7 +25,7 @@
 		"public/js/frappe/ui/messages.js",
 		"public/js/frappe/translate.js",
 		"public/js/frappe/utils/pretty_date.js",
-		"public/js/lib/microtemplate.js",
+		"public/js/frappe/microtemplate.js",
 		"public/js/frappe/query_string.js",
 
 		"public/js/frappe/ui/dropzone.js",
@@ -145,9 +134,7 @@
 		"public/js/frappe/router_history.js",
 		"public/js/frappe/defaults.js",
 		"public/js/frappe/roles_editor.js",
-		"public/js/lib/microtemplate.js",
-
-		"public/js/legacy/handler.js",
+		"public/js/frappe/microtemplate.js",
 
 		"public/js/frappe/ui/page.html",
 		"public/js/frappe/ui/page.js",
@@ -189,7 +176,6 @@
 
 		"public/js/frappe/ui/upload.html",
 		"public/js/frappe/upload.js",
-		"public/js/integrations/gsuite.js",
 		"public/js/frappe/ui/tree.js",
 
 		"public/js/frappe/views/container.js",
@@ -198,6 +184,7 @@
 		"public/js/frappe/views/pageview.js",
 
 		"public/js/frappe/ui/toolbar/awesome_bar.js",
+		"public/js/frappe/ui/toolbar/energy_points_notifications.js",
 		"public/js/frappe/ui/toolbar/search.js",
 		"public/js/frappe/ui/toolbar/search.html",
 		"public/js/frappe/ui/toolbar/search_header.html",
@@ -222,7 +209,8 @@
 		"public/js/frappe/chat.js",
 		"public/js/frappe/social/social_factory.js",
 		"public/js/frappe/utils/energy_point_utils.js",
-		"public/js/frappe/ui/chart.js"
+		"public/js/frappe/ui/chart.js",
+		"public/js/frappe/barcode_scanner/index.js"
 	],
 	"css/module.min.css": [
 		"public/less/module.less"
@@ -334,5 +322,8 @@
 	],
 	"js/modules.min.js": [
 		"public/js/frappe/views/modules_home.js"
+	],
+	"js/barcode_scanner.min.js": [
+		"public/js/frappe/barcode_scanner/quagga.js"
 	]
 }

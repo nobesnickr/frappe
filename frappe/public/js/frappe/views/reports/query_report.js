@@ -269,7 +269,7 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 			const promises = filters_to_set.map(f => {
 				return () => {
 					const value = frappe.route_options[f.df.fieldname];
-					return f.set_value(value);
+					f.set_value(value);
 				};
 			});
 			promises.push(() => {
@@ -535,7 +535,10 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 				]
 			},
 			type: type,
-			colors: colors
+			colors: colors,
+			axisOptions: {
+				shortenYAxisNumbers: 1
+			}
 		};
 
 		function get_column_values(column_name) {
@@ -818,11 +821,22 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 		frappe.breadcrumbs.add(ref_doctype.module);
 	}
 
+	make_access_log (method, file_format) {
+		frappe.call("frappe.core.doctype.access_log.access_log.make_access_log",
+			{
+				doctype: this.doctype || '',
+				report_name: this.report_name,
+				filters: this.get_filter_values(),
+				file_type: file_format,
+				method: method
+			});
+	}
+
 	print_report(print_settings) {
 		const custom_format = this.report_settings.html_format || null;
 		const filters_html = this.get_filters_html_for_print();
 		const landscape = print_settings.orientation == 'Landscape';
-
+		this.make_access_log('Print', 'PDF');
 		frappe.render_grid({
 			template: custom_format,
 			title: __(this.report_name),
@@ -905,6 +919,7 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 				fieldtype: "Check",
 			}
 		], ({ file_format, include_indentation }) => {
+			this.make_access_log('Export', file_format);
 			if (file_format === 'CSV') {
 				const column_row = this.columns.map(col => col.label);
 				const data = this.get_data_for_csv(include_indentation);
@@ -991,11 +1006,12 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 			{
 				label: __('Print'),
 				action: () => {
-					frappe.ui.get_print_settings(
+					let dialog = frappe.ui.get_print_settings(
 						false,
 						print_settings => this.print_report(print_settings),
 						this.report_doc.letter_head
 					);
+					this.add_portrait_warning(dialog);
 				},
 				condition: () => frappe.model.can_print(this.report_doc.ref_doctype),
 				standard: true
@@ -1003,11 +1019,13 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 			{
 				label: __('PDF'),
 				action: () => {
-					frappe.ui.get_print_settings(
+					let dialog = frappe.ui.get_print_settings(
 						false,
 						print_settings => this.pdf_report(print_settings),
 						this.report_doc.letter_head
 					);
+
+					this.add_portrait_warning(dialog);
 				},
 				condition: () => frappe.model.can_print(this.report_doc.ref_doctype),
 				standard: true
@@ -1138,6 +1156,18 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 				standard: true
 			}
 		];
+	}
+
+	add_portrait_warning(dialog) {
+		if (this.columns.length > 10) {
+			dialog.set_df_property('orientation', 'change', () => {
+				let value = dialog.get_value('orientation');
+				let description = value === 'Portrait'
+					? __('Report with more than 10 columns looks better in Landscape mode.')
+					: '';
+				dialog.set_df_property('orientation', 'description', description);
+			});
+		}
 	}
 
 	add_custom_column(custom_column, custom_data, link_field, column_field, insert_after) {
